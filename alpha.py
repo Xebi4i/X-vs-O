@@ -122,7 +122,8 @@ class Game(QtGui.QLabel):
                                QtCore.QLine(0, self.h // 3 * 2, self.w, self.h // 3 * 2))
         for i, j in self.elements.items():
             for k in j:
-                painter.drawLines(QtCore.QLine(k[1] + 10, k[2] + 10, k[1] + 90, k[2] + 90), QtCore.QLine(k[1] + 10, k[2] + 90, k[1] + 90, k[2] + 10)) if i == "X" else painter.drawEllipse(k[1] + 10, k[2] + 10, 80, 80)
+                painter.drawLines(QtCore.QLine(k[1] + 10, k[2] + 10, k[1] + self.w // 3 - 10, k[2] + self.h // 3 - 10),
+                                  QtCore.QLine(k[1] + 10, k[2] + self.h // 3 - 10, k[1] + self.w // 3 - 10, k[2] + 10)) if i == "X" else painter.drawEllipse(k[1] + 10, k[2] + 10, self.w // 3 - 20, self.h // 3 - 20)
            
     def closeEvent(self, e):
         window.setVisible(True)
