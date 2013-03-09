@@ -340,13 +340,5 @@
     </ddl-file-settings>
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.2.3 (/usr/bin/python3.2)" project-jdk-type="Python SDK" />
-  <component name="PyConsoleOptionsProvider">
-    <option name="myPythonConsoleState">
-      <PyConsoleSettings />
-    </option>
-    <option name="myDjangoConsoleState">
-      <PyConsoleSettings />
-    </option>
-  </component>
 </project>
 
