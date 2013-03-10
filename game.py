@@ -85,11 +85,13 @@ class Game(QtGui.QLabel):
         QtGui.QLabel.__init__(self, parent)
         self.resize(300, 300)
         self.mode = mode
-        self.pos = {'X' : [], "O" : []}
-        self.comb = {'X' : set(), "O" : set()}
-        self.paterns = ({1, 2, 3}, {4, 5, 6}, {7, 8, 9},
-                        {1, 4, 7}, {2, 5, 8}, {3, 6, 9},
-                        {1, 5, 9}, {3, 5, 7})
+        self.pos = {'X' : set(), "O" : set()}
+        self.elevants = {1 : [0, 0], 2 : [100, 0], 3 : [200, 0],
+                         4 : [0, 100], 5 : [100, 100], 6 : [200, 100],
+                         7 : [0, 200], 8 : [100, 200], 9 : [200, 200]}
+        self.winner_comb = ({1, 2, 3}, {4, 5, 6}, {7, 8, 9},
+                            {1, 4, 7}, {2, 5, 8}, {3, 6, 9},
+                            {1, 5, 9}, {3, 5, 7})
         self.count_click = 0
         self.point = None
         self.setWindowFlags(QtCore.Qt.MSWindowsFixedSizeDialogHint)
@@ -102,8 +104,8 @@ class Game(QtGui.QLabel):
         self.w, self.h = self.geometry().width(), self.geometry().height()
 
     def chacking(self):
-        for i, j in self.comb.items():
-            for p in self.paterns:
+        for i, j in self.pos.items():
+            for p in self.winner_comb:
                 if j & p == p:
                     dialog = QtGui.QMessageBox(QtGui.QMessageBox.Information,
                                                "X vs O",
@@ -114,17 +116,15 @@ class Game(QtGui.QLabel):
                     if result == QtGui.QMessageBox.No:
                         self.close()
                     else:
-                        self.pos = {'X' : [], "O" : []}
-                        self.comb = {'X' : set(), "O" : set()}
+                        self.pos = {'X' : set(), "O" : set()}
+                        self.count_click = 0
                         self.update()
 
     def mousePressEvent(self, e):
-        self.point = ((e.x() // (self.w // 3)) * self.w // 3,
-                      (e.y() // (self.h // 3)) * self.h // 3)
-        if (self.point not in self.pos["X"] and self.point not in self.pos["O"]):
+        self.point = (e.y() // (self.h // 3)) * 3 + (e.x() // (self.w // 3)) + 1
+        if (self.point not in self.pos["X"] | self.pos["O"]):
             self.count_click += 1
-            self.pos["X" if self.count_click % 2 == 1 else "O"].append(self.point)
-            self.comb["X" if self.count_click % 2 == 1 else "O"].add((e.y() // (self.h // 3)) * 3 + (e.x() // (self.w // 3)) + 1)
+            self.pos["X" if self.count_click % 2 == 1 else "O"].add(self.point)
             self.update()
         self.chacking()
         e.ignore()
@@ -143,8 +143,11 @@ class Game(QtGui.QLabel):
                           QtCore.QLine(0, self.h // 3 * 2, self.w, self.h // 3 * 2))
         for i, j in self.pos.items():
             for k in j:
-                painter.drawLines(QtCore.QLine(k[0] + 10, k[1] + 10, k[0] + self.w // 3 - 10, k[1] + self.h // 3 - 10),
-                                  QtCore.QLine(k[0] + 10, k[1] + self.h // 3 - 10, k[0] + self.w // 3 - 10, k[1] + 10)) if i == "X" else painter.drawEllipse(k[0] + 10, k[1] + 10, self.w // 3 - 20, self.h // 3 - 20)
+                if i == "X":
+                    painter.drawLines(QtCore.QLine(self.elevants[k][0] + 10, self.elevants[k][1] + 10, self.elevants[k][0] + 90, self.elevants[k][1] + 90),
+                                      QtCore.QLine(self.elevants[k][0] + 10, self.elevants[k][1] + 90, self.elevants[k][0] + 90, self.elevants[k][1] + 10))
+                else:
+                    painter.drawEllipse(self.elevants[k][0] + 10, self.elevants[k][1] + 10, 80, 80)
 
     def closeEvent(self, e):
         window.setVisible(True)
