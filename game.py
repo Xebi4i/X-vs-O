@@ -109,7 +109,7 @@ class Game(QtGui.QLabel):
                 if j & p == p:
                     dialog = QtGui.QMessageBox(QtGui.QMessageBox.Information,
                                                "X vs O",
-                                               "              {0} - WIN\nDo you want continue?".format(i),
+                                               "{0}{1} - WIN\nDo you want continue?".format(" " * 15, i),
                                                buttons = QtGui.QMessageBox.No | QtGui.QMessageBox.Yes,
                                                parent = self)
                     result = dialog.exec_()
@@ -120,13 +120,28 @@ class Game(QtGui.QLabel):
                         self.count_click = 0
                         self.update()
 
+    def single(self):
+        self.pos["X" if self.count_click % 2 == 0 else "O"].add(self.point)
+        self.count_click += 1
+        self.update()
+        self.chacking()
+    
+    def multi(self):       
+        for i in self.winner_comb:
+            if len(i - self.pos["X"]) == 1:
+                self.pos["O"].add((i - self.pos["X"]).pop())
+                break
+        self.update()
+        self.chacking()
+            
     def mousePressEvent(self, e):
         self.point = (e.y() // (self.h // 3)) * 3 + (e.x() // (self.w // 3)) + 1
         if (self.point not in self.pos["X"] | self.pos["O"]):
-            self.count_click += 1
-            self.pos["X" if self.count_click % 2 == 1 else "O"].add(self.point)
-            self.update()
-        self.chacking()
+            if self.mode == "Single ":
+                self.single()
+            elif self.mode == "Multi":
+                self.single()
+                self.multi() 
         e.ignore()
         QtGui.QLabel.mousePressEvent(self, e)
 
