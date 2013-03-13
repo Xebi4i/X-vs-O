@@ -140,15 +140,15 @@ class Game(QtGui.QLabel):
     
     def multi(self):       
         for i in self.winner_comb:
-            if len(i - self.pos["X"]) == 1:
-                self.pos["O"].add((i - self.pos["X"]).pop())
-                return
-            elif len(i - self.pos["O"]) == 1:
+            if len(i - self.pos["O"]) == 1 and (i - self.pos["O"]).pop() not in self.pos["X"]:
                 self.pos["O"].add((i - self.pos["O"]).pop())
+                return
+            elif len(i - self.pos["X"]) == 1 and (i - self.pos["X"]).pop() not in self.pos["O"]:
+                self.pos["O"].add((i - self.pos["X"]).pop())
                 return
         if len(self.pos["O"]) == 0:
             self.pos["O"].add(random.choice([i for i in ({1, 3, 7, 9} - self.pos["X"])]))
-        else:
+        elif len({i for i in range(1, 10)} - self.pos["X"] - self.pos["O"]) != 0:
             self.pos["O"].add(random.choice([i for i in ({i for i in range(1, 10)} - self.pos["X"] - self.pos["O"])]))
             
     def mousePressEvent(self, e):
