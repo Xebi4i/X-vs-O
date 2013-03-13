@@ -1,5 +1,5 @@
 from PyQt4 import QtGui, QtCore
-import sys
+import sys, random
 
 class MyWindow(QtGui.QMainWindow):
     def __init__(self, parent = None):
@@ -104,35 +104,52 @@ class Game(QtGui.QLabel):
         self.w, self.h = self.geometry().width(), self.geometry().height()
 
     def chacking(self):
-        for i, j in self.pos.items():
-            for p in self.winner_comb:
-                if j & p == p:
-                    dialog = QtGui.QMessageBox(QtGui.QMessageBox.Information,
+        if len(self.pos["X"] | self.pos["O"]) == 9:
+            dialog = QtGui.QMessageBox(QtGui.QMessageBox.Information,
                                                "X vs O",
-                                               "{0}{1} - WIN\nDo you want continue?".format(" " * 15, i),
+                                               "{0}Nobody win\nDo you want continue?".format(" " * 5),
                                                buttons = QtGui.QMessageBox.No | QtGui.QMessageBox.Yes,
                                                parent = self)
-                    result = dialog.exec_()
-                    if result == QtGui.QMessageBox.No:
-                        self.close()
-                    else:
-                        self.pos = {'X' : set(), "O" : set()}
-                        self.count_click = 0
-                        self.update()
+            result = dialog.exec_()
+            if result == QtGui.QMessageBox.No:
+                self.close()
+            else:
+                self.pos = {'X' : set(), "O" : set()}
+                self.count_click = 0
+                self.update()
+        else:
+            for i, j in self.pos.items():
+                for p in self.winner_comb:
+                    if j & p == p:
+                        dialog = QtGui.QMessageBox(QtGui.QMessageBox.Information,
+                                                   "X vs O",
+                                                   "{0}{1} - WIN\nDo you want continue?".format(" " * 10, i),
+                                                   buttons = QtGui.QMessageBox.No | QtGui.QMessageBox.Yes,
+                                                   parent = self)
+                        result = dialog.exec_()
+                        if result == QtGui.QMessageBox.No:
+                            self.close()
+                        else:
+                            self.pos = {'X' : set(), "O" : set()}
+                            self.count_click = 0
+                            self.update()
 
     def single(self):
         self.pos["X" if self.count_click % 2 == 0 else "O"].add(self.point)
         self.count_click += 1
-        self.update()
-        self.chacking()
     
     def multi(self):       
         for i in self.winner_comb:
             if len(i - self.pos["X"]) == 1:
                 self.pos["O"].add((i - self.pos["X"]).pop())
-                break
-        self.update()
-        self.chacking()
+                return
+            elif len(i - self.pos["O"]) == 1:
+                self.pos["O"].add((i - self.pos["O"]).pop())
+                return
+        if len(self.pos["O"]) == 0:
+            self.pos["O"].add(random.choice([i for i in ({1, 3, 7, 9} - self.pos["X"])]))
+        else:
+            self.pos["O"].add(random.choice([i for i in ({i for i in range(1, 10)} - self.pos["X"] - self.pos["O"])]))
             
     def mousePressEvent(self, e):
         self.point = (e.y() // (self.h // 3)) * 3 + (e.x() // (self.w // 3)) + 1
@@ -141,7 +158,10 @@ class Game(QtGui.QLabel):
                 self.single()
             elif self.mode == "Multi":
                 self.single()
-                self.multi() 
+                self.multi()
+                self.count_click += 1
+            self.update()
+            self.chacking()
         e.ignore()
         QtGui.QLabel.mousePressEvent(self, e)
 
