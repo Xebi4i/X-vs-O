@@ -111,7 +111,7 @@ class Game(QtGui.QLabel):
                     if j & p == p:
                         dialog = QtGui.QMessageBox(QtGui.QMessageBox.Information,
                                                    "X vs O",
-                                                   "{0}{1} - WIN\nDo you want continue?".format(" " * 15, i),
+                                                   "{0}{1} - WIN\nDo you want continue?".format(" " * 12, i),
                                                    buttons = QtGui.QMessageBox.No | QtGui.QMessageBox.Yes,
                                                    parent = self)
                         result = dialog.exec_()
@@ -120,12 +120,12 @@ class Game(QtGui.QLabel):
                         else:
                             self.pos = {'X' : set(), "O" : set()}
                             self.count_click = 0
-                            self.died_x = None
-                        return True
+                        self.update()
+                        return
         if len(self.pos["X"] | self.pos["O"]) == 9:
             dialog = QtGui.QMessageBox(QtGui.QMessageBox.Information,
                                                "X vs O",
-                                               "{0}Nobody win\nDo you want continue?".format(" " * 10),
+                                               "{0}Nobody win\nDo you want continue?".format(" " * 7),
                                                buttons = QtGui.QMessageBox.No | QtGui.QMessageBox.Yes,
                                                parent = self)
             result = dialog.exec_()
@@ -134,45 +134,52 @@ class Game(QtGui.QLabel):
             else:
                 self.pos = {'X' : set(), "O" : set()}
                 self.count_click = 0
-                self.died_x = None
-            return True
+            self.update()
+            return
 
     def single(self):
         self.pos["X" if self.count_click % 2 == 0 else "O"].add(self.point)
         self.count_click += 1
         self.update()
-        if self.chacking(): self.update()
+        self.chacking()
     
     def multi(self):
         self.pos["X"].add(self.point)
         self.update()
-        if self.chacking():
-            self.update()
-            return
+        self.chacking()
         for i in self.winner_comb:
             if len(i - self.pos["O"]) == 1 and list(i - self.pos["O"])[0] not in self.pos["X"]:
                 self.pos["O"].add(list(i - self.pos["O"])[0])
+                self.update()
+                self.chacking()
                 return
             elif len(i - self.pos["X"]) == 1 and list(i - self.pos["X"])[0] not in self.pos["O"]:
                 self.died_x = list(i - self.pos["X"])[0]
                 continue
         if self.died_x:    
             self.pos["O"].add(self.died_x)
+            self.died_x = None
+            self.update()
+            self.chacking()
             return
         if len(self.pos["O"]) == 0:
             self.pos["O"].add(random.choice([i for i in ({1, 3, 7, 9} - self.pos["X"])]))
-        elif len({i for i in range(1, 10)} - self.pos["X"] - self.pos["O"]) != 0:
-            self.pos["O"].add(random.choice([i for i in ({i for i in range(1, 10)} - self.pos["X"] - self.pos["O"])]))
+            self.update()
+            self.chacking()
+            return
+        elif len({1, 2, 3, 4, 5, 6, 7, 8, 9} - self.pos["X"] - self.pos["O"]) > 0:
+            self.pos["O"].add(random.choice([i for i in ({1, 2, 3, 4, 5, 6, 7, 8, 9} - self.pos["X"] - self.pos["O"])]))
+            self.update()
+            self.chacking()
+            return
             
     def mousePressEvent(self, e):
-        self.point = (e.y() // (self.h // 3)) * 3 + (e.x() // (self.w // 3)) + 1
+        self.point = (e.y() // (self.h // 3)) * 3 + (e.x() // (self.w // 3)) + 1    
         if (self.point not in self.pos["X"] | self.pos["O"]):
             if self.mode == "Single ":
                 self.single()
             elif self.mode == "Multi":
                 self.multi()
-                self.update()
-                self.chacking()
         e.ignore()
         QtGui.QLabel.mousePressEvent(self, e)
 
