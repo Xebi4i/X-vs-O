@@ -75,10 +75,14 @@ class MainWidget(QtGui.QWidget):
         self.btn_quit.clicked.connect(QtGui.qApp.quit)
 
     def click_single(self):
-        MyWindow.single_game(self)
+        self.single = Game("Single ")
+        self.single.show()
+        window.setVisible(False)
 
     def click_multi(self):
-        MyWindow.multi_game(self)
+        self.multi = Game("Multi")
+        self.multi.show()
+        window.setVisible(False)
 
 class Game(QtGui.QLabel):
     def __init__(self, mode, parent = None):
