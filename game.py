@@ -154,8 +154,6 @@ class Game(QtGui.QLabel):
         for i in self.winner_comb:
             if len(i - self.pos["O"]) == 1 and list(i - self.pos["O"])[0] not in self.pos["X"]:
                 self.pos["O"].add(list(i - self.pos["O"])[0])
-                self.update()
-                self.chacking()
                 return
             elif len(i - self.pos["X"]) == 1 and list(i - self.pos["X"])[0] not in self.pos["O"]:
                 self.died_x = list(i - self.pos["X"])[0]
@@ -163,27 +161,20 @@ class Game(QtGui.QLabel):
         if self.died_x:    
             self.pos["O"].add(self.died_x)
             self.died_x = None
-            self.update()
-            self.chacking()
             return
-        if len(self.pos["O"]) == 0:
-            self.pos["O"].add(random.choice([i for i in ({1, 3, 7, 9} - self.pos["X"])]))
-            self.update()
-            self.chacking()
-            return
-        elif len({1, 2, 3, 4, 5, 6, 7, 8, 9} - self.pos["X"] - self.pos["O"]) > 0:
-            self.pos["O"].add(random.choice([i for i in ({1, 2, 3, 4, 5, 6, 7, 8, 9} - self.pos["X"] - self.pos["O"])]))
-            self.update()
-            self.chacking()
+        if len(self.pos["X"] | self.pos["O"]) < 9:
+            self.pos["O"].add(random.choice([i for i in ({k for k in range(1, 10)} - (self.pos["X"] | self.pos["O"]))]))
             return
             
     def mousePressEvent(self, e):
         self.point = (e.y() // (self.h // 3)) * 3 + (e.x() // (self.w // 3)) + 1    
-        if (self.point not in self.pos["X"] | self.pos["O"]):
+        if (self.point not in self.pos["X"] and self.point not in self.pos["O"]):
             if self.mode == "Single ":
                 self.single()
             elif self.mode == "Multi":
                 self.multi()
+                self.update()
+                self.chacking()
         e.ignore()
         QtGui.QLabel.mousePressEvent(self, e)
 
