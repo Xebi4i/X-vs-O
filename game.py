@@ -85,6 +85,7 @@ class MainWidget(QtGui.QWidget):
         window.setVisible(False)
 
 class Game(QtGui.QLabel):
+    
     def __init__(self, mode, parent = None):
         QtGui.QLabel.__init__(self, parent)
         self.resize(300, 300)
